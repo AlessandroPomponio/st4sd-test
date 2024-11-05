@@ -1,18 +1,31 @@
 entrypoint:
-  entry-instance: hello
+  entry-instance: wrapper
   execute:
     - target: <entry-instance>
       args:
-        message: Hello world
+        input.message: input/message
+
+workflows:
+  - signature:
+      name: wrapper
+      parameters:
+        - name: input.message
+
+    steps:
+      printer: printer
+    execute:
+      - target: <printer>
+        args:
+          file: "%(input.message)s:ref"
 
 components:
   - signature:
-      name: hello
+      name: printer
       parameters:
-        - name: message
+        - name: file
     command:
-      executable: echo
-      arguments: "%(message)s"
+      executable: cat
+      arguments: "%(file)s"
     resourceManager:
       kubernetes:
         image: mirror.gcr.io/busybox
